@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 
 export const SettingsContext = React.createContext();
 
-function SettingsProvider({ children }){
-  // we will use the setters tomorrow!
+function SettingsProvider({ children }) {
   const [pageItems, setPageItems] = useState(3);
   const [completed, setCompleted] = useState(true);
   const [sort, setSort] = useState('difficulty');
@@ -12,13 +11,13 @@ function SettingsProvider({ children }){
     pageItems,
     completed,
     sort,
-  }
+  };
 
-  return(
+  return (
     <SettingsContext.Provider value={values}>
       {children}
     </SettingsContext.Provider>
-  )
+  );
 }
 
 export default SettingsProvider;
