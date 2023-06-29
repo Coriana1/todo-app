@@ -1,70 +1,51 @@
 import { useContext, useState } from 'react';
-import { Pagination } from '@mantine/core';
 import { SettingsContext } from '../../Context/Settings';
+import { Pagination } from '@mantine/core';
 
-function List(props){
-    const { pageItems, completed, sort } = useContext(SettingsContext);
-    const [currentPage, setPage] = useState(1)
-    const pages = Math.ceil(props.list.length / pageItems)
+function List({ list, toggleComplete }) {
+  const {
+    displayCount,
+    showComplete,
+    sort
+  } = useContext(SettingsContext);
+  const [activePage, setPage] = useState(1);
 
-    const displayedItems = completed
-    ? props.list.filter((item) => !item.complete)
-    : props.list;
+  // proof of life, context is accessible
+  // console.log(displayCount, showComplete, sort)
 
-    const firstItem = (currentPage - 1) * pageItems;
-    const lastItem = currentPage * pageItems;
-    const finalItems = displayedItems.slice(firstItem, lastItem);
+  // our renderable list will conditionally show or hide completed tasks
+  const renderableList = showComplete ? list : list.filter(item => !item.complete);
+  // console.log('our renderable list', renderableList)
 
+  // determine how many pages will be in our pagination component
+  const pageCount = Math.ceil(renderableList.length / displayCount);
 
-    return(
-      <>
-        {finalItems.map(item => (
-        <div key={item.id} >
+  // where to start rendering display data
+  const listStart = displayCount * (activePage - 1);
+  // where to end (using slice)
+  const listEnd = listStart + displayCount;
+
+  // list that is displayed for each pagination page
+  const displayList = renderableList.slice(listStart, listEnd);
+
+  return (
+    <>
+      {displayList.map(item => (
+        <div key={item.id}>
           <p>{item.text}</p>
           <p><small>Assigned to: {item.assignee}</small></p>
           <p><small>Difficulty: {item.difficulty}</small></p>
-          <div onClick={() => props.toggleComplete(item.id)}>Complete: {item.complete.toString()}</div>
+          <div onClick={() => toggleComplete(item.id)}>Complete: {item.complete.toString()}</div>
           <hr />
         </div>
+        
       ))}
-      <Pagination value={currentPage} onChange={setPage} total={pages} />
-      </>
-    )
+
+      <Pagination value={activePage} onChange={setPage} total={pageCount} />
+
+    </>
+  )
+
 }
 
 export default List;
-
-
-
-
-
-
-
-
-// import React from 'react';
-
-// function List(props) {
-//   const toggleComplete = (itemId) => {
-//     // Code logic to toggle the completion status of the item with the specified itemId
-//     // Example implementation:
-//     // 1. Find the item in the list using the itemId
-//     // 2. Toggle the `complete` property of the item
-//     // 3. Update the state or re-render the component to reflect the changes
-//   };
-
-//   return (
-//     <div>
-//       {props.list.map(item => (
-//         <div key={item.id}>
-//           <p>{item.text}</p>
-//           <p><small>Assigned to: {item.assignee}</small></p>
-//           <p><small>Difficulty: {item.difficulty}</small></p>
-//           <div onClick={() => toggleComplete(item.id)}>Complete: {item.complete.toString()}</div>
-//           <hr />
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
-
-// export default List;

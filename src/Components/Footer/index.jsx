@@ -1,6 +1,20 @@
+import { createStyles } from '@mantine/core';
+
+const useStyles = createStyles((theme) => ({
+  footer: {
+    textAlign: 'right',
+    width: '80%',
+    margin: 'auto',
+  }
+}));
+
 function Footer() {
+  const { classes } = useStyles();
+
   return (
-      <footer data-testid='todo-footer'>Coriana Williams 2023</footer>
+    <footer className={classes.footer}>
+      &copy;2023 Code Fellows
+    </footer>
   )
 }
 
