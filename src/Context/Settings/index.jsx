@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 
-export const SettingsContext = React.createContext();
+// create context---------
+export const SettingsContext = React.createContext()
 
+// create provider
 function SettingsProvider({ children }){
-  // we will use the setters tomorrow!
-  const [pageItems, setPageItems] = useState(3);
-  const [completed, setCompleted] = useState(true);
+  const [displayCount, setDisplayCount] = useState(3);
+  const [showComplete, setShowComplete] = useState(false);
   const [sort, setSort] = useState('difficulty');
 
+  // this will be the SettingsContext STATE
   const values = {
-    pageItems,
-    completed,
+    displayCount,
+    showComplete,
     sort,
   }
 
-  return(
+  return (
     <SettingsContext.Provider value={values}>
       {children}
     </SettingsContext.Provider>

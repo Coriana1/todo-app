@@ -1,11 +1,25 @@
-function Header ({incomplete}) {
-  return (
-    <>
-      <header data-testid="todo-header">
-        <h1 data-testid="todo-h1">To Do List: {incomplete} items pending</h1>
-      </header>
-    </>
-  )
-  };
+import { createStyles, Navbar, Text } from '@mantine/core';
 
-  export default Header;
+const useStyles = createStyles((theme) => ({
+  navbar: {
+    backgroundColor: theme.colors.blue[7],
+    height: '100%',
+    color: theme.colors.gray[0],
+    fontSize: theme.fontSizes.md,
+    padding: theme.spacing.md,
+  }
+}));
+
+function Header(){
+  const { classes } = useStyles();
+
+  return (
+    <header>
+      <Navbar className={classes.navbar}>
+        <Text>Home</Text>
+      </Navbar>
+    </header>
+  )
+}
+
+export default Header;
