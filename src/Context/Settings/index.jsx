@@ -1,22 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-// create context---------
-export const SettingsContext = React.createContext()
+export const SettingsContext = React.createContext();
 
-// create provider
 function SettingsProvider({ children }){
-  const [displayCount, setDisplayCount] = useState(3);
-  const [showComplete, setShowComplete] = useState(false);
+  const [pageItems, setPageItems] = useState(3);
+  const [showCompleted, setShowCompleted] = useState(false);
   const [sort, setSort] = useState('difficulty');
 
-  // this will be the SettingsContext STATE
-  const values = {
-    displayCount,
-    showComplete,
-    sort,
+  const saveLocally = () => {
+    localStorage.setItem('todo', JSON.stringify({pageItems, showCompleted, sort}));
   }
 
-  return (
+  useEffect(() => {
+      let storage = JSON.parse(localStorage.getItem('todo'));
+      if(storage){
+        setPageItems(storage.pageItems);
+        setShowCompleted(storage.showCompleted);
+        setSort(storage.sort);
+      }
+    }, [])
+
+  const values = {
+    pageItems,
+    setPageItems,
+    showCompleted,
+    setShowCompleted,
+    sort,
+    setSort,
+    saveLocally,
+  }
+
+  return(
     <SettingsContext.Provider value={values}>
       {children}
     </SettingsContext.Provider>
