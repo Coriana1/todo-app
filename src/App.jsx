@@ -1,16 +1,23 @@
 import React from 'react';
-
 import Todo from './Components/Todo';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import SettingsForm from './Context/Settings';
 import Header from './Components/Header';
 import Footer from './Components/Footer';
+// import './App.scss';
 
 export default class App extends React.Component {
   render() {
     return (
       <>
-        <Header />
-        <Todo />
-        <Footer />
+          <BrowserRouter>
+            <Header />
+              <Routes>
+                <Route path="/" element={<Todo />} />
+                <Route path="/settings" element={<SettingsForm />} />
+              </Routes>
+            <Footer />
+          </BrowserRouter>
       </>
     );
   }
