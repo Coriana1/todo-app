@@ -21,6 +21,7 @@ function SettingsProvider({ children }){
     }, [])
 
   const values = {
+    
     pageItems,
     setPageItems,
     showCompleted,
