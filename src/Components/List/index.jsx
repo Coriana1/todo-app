@@ -1,74 +1,47 @@
 import { useContext, useState } from 'react';
 import { SettingsContext } from '../../Context/Settings';
-import { Card, Badge, CloseButton } from '@mantine/core';
-import { When } from 'react-if';
-import Auth from '../Auth';
 import { Pagination } from '@mantine/core';
 
-function List({ list, toggleComplete, deleteItem }) {
-  const { pageItems, showCompleted } = useContext(SettingsContext);
-  const [currentPage, setPage] = useState(1);
+function List({ list, toggleComplete }) {
+  const {
+    displayCount,
+    showComplete,
+  } = useContext(SettingsContext);
+  const [activePage, setPage] = useState(1);
 
-  // Check if the list is defined and not empty
-  if (!list || list.length === 0) {
-    return null; // Or display a message indicating no items
-  }
+  // our renderable list will conditionally show or hide completed tasks
+  const renderableList = showComplete ? list : list.filter(item => !item.complete);
 
-  const displayedItems = showCompleted ? list : list.filter((item) => !item.complete);
+  // determine how many pages will be in our pagination component
+  const pageCount = Math.ceil(renderableList.length / displayCount);
 
-  const pages = Math.ceil(displayedItems.length / pageItems);
-  const firstItem = (currentPage - 1) * pageItems;
-  const lastItem = currentPage * pageItems;
-  const finalItems = displayedItems.slice(firstItem, lastItem);
+  // where to start rendering display data
+  const listStart = displayCount * (activePage - 1);
+  // where to end (using slice)
+  const listEnd = listStart + displayCount;
 
-  const handlePageChange = (selectedPage) => {
-    setPage(selectedPage.selected + 1);
-  };
+  // list that is displayed for each pagination page
+  const displayList = renderableList.slice(listStart, listEnd);
 
   return (
     <>
-      {finalItems.map((item) => (
-        <Card shadow="sm" padding="lg" radius="md" withBorder key={item.id}>
-          <When condition={!item.complete}>
-            <Badge color="green" variant="filled" onClick={() => toggleComplete(item.id)}>
-              Pending
-            </Badge>{' '}
-            {item.assignee}
-            <Auth capability={'delete'}>
-              <CloseButton onClick={() => deleteItem(item.id)} />
-            </Auth>
-            <hr />
-            <p>{item.text}</p>
-            <p>
-              <small>Difficulty: {item.difficulty}</small>
-            </p>
-          </When>
-          <When condition={item.complete}>
-            <Badge color="red" variant="filled" onClick={() => toggleComplete(item.id)}>
-              Completed
-            </Badge>{' '}
-            {item.assignee}
-            <Auth capability={'delete'}>
-              <CloseButton onClick={() => deleteItem(item.id)} />
-            </Auth>
-            <hr />
-            <p>{item.text}</p>
-            <p>
-              <small>Difficulty: {item.difficulty}</small>
-            </p>
-          </When>
-        </Card>
+      {displayList.map(item => (
+        <div key={item.id}>
+          <p>{item.text}</p>
+          <p><small>Assigned to: {item.assignee}</small></p>
+          <p><small>Difficulty: {item.difficulty}</small></p>
+          <div onClick={() => toggleComplete(item.id)}>Complete: {item.complete.toString()}</div>
+          <hr />
+        </div>
+        
       ))}
-      <Pagination
-        value={currentPage}
-        onChange={handlePageChange}
-        total={pages}
-        limit={5} // Add a limit for pagination items
-      />
+
+      <Pagination value={activePage} onChange={setPage} total={pageCount} />
+
     </>
-  );
+  )
+
 }
 
 export default List;
-
 
