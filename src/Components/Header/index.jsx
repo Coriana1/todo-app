@@ -1,50 +1,37 @@
-import { useContext, useState } from 'react';
-import { SettingsContext } from '../../Context/Settings';
-import { Pagination, Card, Badge, CloseButton} from '@mantine/core';
-import { When } from 'react-if';
-import Auth from '../Auth';
+import { createStyles, Header, Group, Navbar } from "@mantine/core";
+import { Link } from "react-router-dom";
+import Login from "../Login";
 
-function List({list, toggleComplete, deleteItem}){
-    const { pageItems, showCompleted } = useContext(SettingsContext);
-    const [currentPage, setPage] = useState(1)
-    
-    const displayedItems = showCompleted
-    ? list
-    : list.filter((item) => !item.complete);
-    
-    const pages = Math.ceil(displayedItems.length / pageItems)
-    const firstItem = (currentPage - 1) * pageItems;
-    const lastItem = currentPage * pageItems;
-    const finalItems = displayedItems.slice(firstItem, lastItem);
+const useStyles = createStyles((theme) => ({
+    navbar: {
+    backgroundColor: theme.colors.blue[6],
+    height: '100%',
+    margin: '0',
+    color: theme.colors.gray[0],
+    display: 'flex',
+    padding: theme.spacing.sm,
+    fontSize: theme.fontSizes.md,
+    },
+    link: {
+        // padding: theme.spacing.sm,
+    }
+}));
 
-
+function HeaderComponent(){
+    const { classes } = useStyles();
     return(
-      <>
-        {finalItems.map(item => (
-        <Card shadow="sm" padding="lg" radius="md" withBorder key={item.id} >
-          <When condition={!item.complete}>
-            <Badge color="green" variant="filled" onClick={() => toggleComplete(item.id)}>Pending</Badge> {item.assignee}    
-            <Auth capability={'delete'}>
-              <CloseButton onClick={() => deleteItem(item.id)}/>
-            </Auth>
-            <hr />
-            <p>{item.text}</p>
-            <p><small>Difficulty: {item.difficulty}</small></p>
-          </When>
-          <When condition={item.complete}>
-            <Badge color="red" variant="filled" onClick={() => toggleComplete(item.id)}>Completed</Badge> {item.assignee}
-            <Auth capability={'delete'}>
-              <CloseButton onClick={() => deleteItem(item.id)}/>
-            </Auth>
-            <hr />
-            <p>{item.text}</p>
-            <p><small>Difficulty: {item.difficulty}</small></p>
-          </When>
-        </Card>
-      ))}
-      <Pagination value={currentPage} onChange={setPage} total={pages} />
-      </>
+        <Header data-testid="header">
+            <Navbar className={classes.navbar} >
+                <Group position="apart">
+                    <Group>
+                        <Link className={classes.link} to='/'>Home</Link>
+                        <Link className={classes.link} to='/settings'>Settings</Link>
+                    </Group>
+                    <Login />
+                </Group>
+            </Navbar>
+        </Header>
     )
 }
 
-export default List;
+export default HeaderComponent;
