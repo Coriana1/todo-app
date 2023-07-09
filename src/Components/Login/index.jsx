@@ -1,85 +1,45 @@
-import { useContext, useState } from 'react';
-import { SettingsContext } from '../../Context/Settings';
-import { Switch, createStyles, Button, Card, Grid, TextInput, NumberInput, Text } from '@mantine/core';
-import { IconSettings } from '@tabler/icons-react';
-import { When } from 'react-if';
+import { useContext, useState } from "react";
+import { AuthContext } from "../../Context/Auth";
+import { When } from "react-if";
+import { TextInput, Button, createStyles } from "@mantine/core";
 
 const useStyles = createStyles((theme) => ({
-    h1: {
-        backgroundColor: theme.colors.gray[8],
-        color: theme.colors.gray[0],
-        fontSize: theme.fontSizes.lg,
-        fontWeight: 'bold',
-        margin: 'auto',
-        marginTop: theme.spacing.md,
-        marginBottom: theme.spacing.md,
-        padding: theme.spacing.md,
-        width: '80%',
-        fontFamily: 'apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
-    },
-    span: {
-        fontWeight: '500',
-        fontSize: theme.fontSizes.sm,
-        fontFamily: 'apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
+    form: {
+        display: 'flex',
+        flexFlow: 'row wrap',
+        justifyContent: 'space-evenly',
+        gap: '10px',
+        boxSizing: 'border-box',
     }
-}));
+}))
 
-const SettingsForm = () => {
-    
+function Login(){
+
     const { classes } = useStyles();
-    const [show, setShow] = useState(false);
-    const { 
-        pageItems, 
-        setPageItems, 
-        showCompleted, 
-        setShowCompleted, 
-        sort, 
-        setSort,
-        saveLocally, 
-    } = useContext(SettingsContext);
+    const { login, logout, isLoggedIn } = useContext(AuthContext);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        saveLocally();
-        setShow(true);
+        login(username, password);
         e.target.reset();
     }
-    
+
     return(
-      <>
-        <h1 className={classes.h1}><IconSettings />Manage Settings</h1>
-        <Grid style={{width: '80%', margin: 'auto'}}>
-            <Grid.Col span={6}>
-                <Card shadow="sm" padding="lg" radius="md" withBorder>
-                    <form onSubmit={handleSubmit}>
-                        <Text fontSize="xl" weight="bold">Update Settings</Text>
-                            <Switch 
-                                label="Show Completed ToDos" 
-                                checked={showCompleted} 
-                                onChange={(event) => setShowCompleted(event.target.checked)} />
-                            <span className={classes.span}>Items per page</span>
-                            <NumberInput 
-                                placeholder={pageItems} 
-                                onChange={setPageItems} />
-                            <span className={classes.span}>Sort Keyword</span>
-                            <TextInput placeholder={sort} onChange={(event) => setSort(event.target.value)} />
-                            <Button type="submit">Show New Settings</Button>
-                    </form>
-                </Card>
-            </Grid.Col>
-            <Grid.Col span={6}>
-                <When condition={show} >
-                    <Card  shadow="sm" padding="lg" radius="md" withBorder>
-                        <Text fontSize="xl" weight="bold">Updated Settings</Text>
-                        <Text>{showCompleted ? 'Show' : 'Hide'} Completed Todos</Text>
-                        <Text>Items Per Page: {pageItems}</Text>
-                        <Text>Sort Keyword: {sort}</Text>
-                    </Card>
+        <>  
+                <When condition={isLoggedIn}>
+                    <Button color='red' onClick={logout}>Logout</Button>
                 </When>
-            </Grid.Col>
-        </Grid>
-      </>
+                <When condition={!isLoggedIn}>
+                    <form className={classes.form} onSubmit={handleSubmit}>
+                        <TextInput placeholder='Username' onChange={(e) => setUsername(e.target.value)} />
+                        <TextInput placeholder='Password' type="password" onChange={(e) => setPassword(e.target.value)} />
+                        <Button color='gray.8' type="submit">Login</Button>
+                    </form>
+                </When>
+        </>
     )
 }
 
-export default SettingsForm;
+export default Login;

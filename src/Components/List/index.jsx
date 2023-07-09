@@ -1,47 +1,76 @@
 import { useContext, useState } from 'react';
 import { SettingsContext } from '../../Context/Settings';
-import { Pagination } from '@mantine/core';
+import { Pagination, Card, Badge, CloseButton, Text, Group } from '@mantine/core';
+import { Else, If, Then, When } from 'react-if';
+import Auth from '../Auth';
+import { AuthContext } from '../../Context/Auth';
 
-function List({ list, toggleComplete }) {
-  const {
-    displayCount,
-    showComplete,
-  } = useContext(SettingsContext);
-  const [activePage, setPage] = useState(1);
+function List({ list, toggleComplete, deleteItem }) {
+  const { pageItems, showCompleted } = useContext(SettingsContext);
+  const { isLoggedIn, can } = useContext(AuthContext)
+  const [currentPage, setPage] = useState(1)
 
-  // our renderable list will conditionally show or hide completed tasks
-  const renderableList = showComplete ? list : list.filter(item => !item.complete);
+  const displayedItems = showCompleted
+    ? list
+    : list.filter((item) => !item.complete);
 
-  // determine how many pages will be in our pagination component
-  const pageCount = Math.ceil(renderableList.length / displayCount);
-
-  // where to start rendering display data
-  const listStart = displayCount * (activePage - 1);
-  // where to end (using slice)
-  const listEnd = listStart + displayCount;
-
-  // list that is displayed for each pagination page
-  const displayList = renderableList.slice(listStart, listEnd);
-
+  const pages = Math.ceil(displayedItems.length / pageItems)
+  const firstItem = (currentPage - 1) * pageItems;
+  const lastItem = currentPage * pageItems;
+  const finalItems = displayedItems.slice(firstItem, lastItem);
+  
   return (
     <>
-      {displayList.map(item => (
-        <div key={item.id}>
-          <p>{item.text}</p>
-          <p><small>Assigned to: {item.assignee}</small></p>
-          <p><small>Difficulty: {item.difficulty}</small></p>
-          <div onClick={() => toggleComplete(item.id)}>Complete: {item.complete.toString()}</div>
-          <hr />
-        </div>
-        
+      {finalItems.map(item => (
+        <Card shadow="md" mb="sm" withBorder key={item._id} >
+          <When condition={!item.complete}>
+            <Group position="apart">
+              <Group>
+                <If condition={isLoggedIn && can('update')}>
+                  <Then>
+                    <Badge color="green" variant="filled" onClick={() => toggleComplete(item._id)}>Pending</Badge>
+                  </Then>
+                  <Else>
+                    <Badge color="green" variant="filled">Pending</Badge>
+                  </Else>
+                </If>
+                <Text>{item.assignee}  </Text>
+              </Group>
+              <Auth capability={'delete'}>
+                <CloseButton onClick={() => deleteItem(item._id)} />
+              </Auth>
+            </Group>
+            <hr />
+            <Text align="left">{item.text}</Text>
+            <Text align="right" >Difficulty: {item.difficulty}</Text>
+          </When>
+          <When condition={item.complete}>
+            <Group position="apart">
+              <Group>
+                <If condition={isLoggedIn && can('update')}>
+                  <Then>
+                    <Badge color="red" variant="filled" onClick={() => toggleComplete(item._id)}>Completed</Badge>
+                  </Then>
+                  <Else>
+                    <Badge color="red" variant="filled">Pending</Badge>
+                  </Else>
+                </If>
+                <Text>{item.assignee}  </Text>
+              </Group>
+              <Auth capability={'delete'}>
+                <CloseButton onClick={() => deleteItem(item._id)} />
+              </Auth>
+            </Group>
+            <hr />
+            <Text align="left">{item.text}</Text>
+            <Text align="right" >Difficulty: {item.difficulty}</Text>
+          </When>
+        </Card>
       ))}
-
-      <Pagination value={activePage} onChange={setPage} total={pageCount} />
-
+      
+      <Pagination value={currentPage} onChange={setPage} total={pages} />
     </>
   )
-
 }
 
 export default List;
-
